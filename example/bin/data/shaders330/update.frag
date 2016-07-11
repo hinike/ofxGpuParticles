@@ -5,9 +5,10 @@ uniform sampler2DRect particles0;
 uniform sampler2DRect particles1;
 
 uniform vec3 mouse;
+uniform vec3 gravity;
 uniform float radiusSquared;
 uniform float elapsed;
-
+uniform float magnitudeFactor;
 in vec2 texCoordVarying;
 
 layout(location = 0) out vec4 posOut;
@@ -21,12 +22,12 @@ void main()
     // mouse attraction
     vec3 direction = mouse - pos.xyz;
     float distSquared = dot(direction, direction);
-    float magnitude = 500.0 * (1.0 - distSquared / radiusSquared);
+    float magnitude = magnitudeFactor * (1.0 - distSquared / radiusSquared);
     vec3 force = step(distSquared, radiusSquared) * magnitude * normalize(direction);
     
     // gravity
-    force += vec3(0.0, -0.5, 0.0);
-    
+    //force += vec3(0.0, -0.5, 0.0);
+    force += gravity;
     // accelerate
     vel += elapsed * force;
     

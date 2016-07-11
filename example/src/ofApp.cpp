@@ -1,5 +1,9 @@
 #include "ofApp.h"
 
+float magnitudeFactor = 500.f;
+float radiusSquared = 40000.f;
+ofVec3f gravity(0.0, -1000.5, 0.0);
+
 //--------------------------------------------------------------
 void ofApp::setup()
 {
@@ -12,8 +16,7 @@ void ofApp::setup()
     
     particles.init(w, h);
     
-    if (ofIsGLProgrammableRenderer()) particles.loadShaders("shaders330/update", "shaders330/draw");
-    else particles.loadShaders("shaders120/update", "shaders120/draw");
+    particles.loadShaders("shaders330/update", "shaders330/draw");
     
     // initial positions
     // use new to allocate 4,000,000 floats on the heap rather than
@@ -52,8 +55,15 @@ void ofApp::onParticlesUpdate(ofShader& shader)
 {
     ofVec3f mouse(ofGetMouseX() - .5f * ofGetWidth(), .5f * ofGetHeight() - ofGetMouseY() , 0.f);
     shader.setUniform3fv("mouse", mouse.getPtr());
+    //gravity.y = -0.9f;
+    shader.setUniform3fv("gravity", gravity.getPtr());
+    
+    
     shader.setUniform1f("elapsed", ofGetLastFrameTime());
-    shader.setUniform1f("radiusSquared", 200.f * 200.f);
+    shader.setUniform1f("radiusSquared", radiusSquared);
+    shader.setUniform1f("magnitudeFactor", magnitudeFactor);
+
+    
 }
 
 //--------------------------------------------------------------
