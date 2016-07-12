@@ -6,14 +6,13 @@
 class ParticlesController : public GpuParticlesListener
 {
 public:
-    // set any update uniforms in this function
-    void onParticlesDraw(GpuParticles* particles){};
     
     GpuParticles* particles;
     float magnitudeFactor;
     float radiusSquared;
     ofVec3f gravity;
     
+    ofTexture particleTexture;
     
     ParticlesController()
     {
@@ -21,6 +20,7 @@ public:
         radiusSquared = 40000.f;
         gravity.set(0.0, -1000.5, 0.0);
         particles = NULL;
+        ofLoadImage(particleTexture, "of.png");
 
     }
     void createParticles(int w=100, int h=1000)
@@ -30,7 +30,8 @@ public:
             delete particles;
         }
         particles = new GpuParticles();
-        particles->loadShaders("shaders330/update", "shaders330/draw");
+        particles->loadShaders();
+        //"shaders330/update", "shaders330/draw");
         particles->init(w, h);
         
         
@@ -57,6 +58,7 @@ public:
         
         // listen for update event to set additonal update uniforms
         particles->updateListener = this;
+        particles->drawListener = this;
 
     
     }
@@ -70,25 +72,32 @@ public:
     void update()
     {
         if(!particles) return;
+        
         particles->update();
+        
+    }
+    void onParticlesDraw(GpuParticles* particleSystem)
+    {
+        ofColor particleColor(ofColor::red);
+        ofSetColor(particleColor);
+        particleTexture.draw(0, 0, ofGetWidth(), ofGetHeight());
     }
     
     void draw()
     {
         if(!particles) return;
-        ofEnableBlendMode(OF_BLENDMODE_ADD);
+        
+        ofPushStyle();
         particles->draw();
-        ofDisableBlendMode();
+        ofPopStyle();
     }
+    
     // set any update uniforms in this function
     void onParticlesUpdate(GpuParticles* particleSystem)
     {
         ofVec3f mouse(ofGetMouseX() - .5f * ofGetWidth(), .5f * ofGetHeight() - ofGetMouseY() , 0.f);
         particleSystem->updateShader.setUniform3fv("mouse", mouse.getPtr());
-        //gravity.y = -0.9f;
         particleSystem->updateShader.setUniform3fv("gravity", gravity.getPtr());
-        
-        
         particleSystem->updateShader.setUniform1f("elapsed", ofGetLastFrameTime());
         particleSystem->updateShader.setUniform1f("radiusSquared", radiusSquared);
         particleSystem->updateShader.setUniform1f("magnitudeFactor", magnitudeFactor);

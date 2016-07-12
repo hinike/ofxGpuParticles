@@ -5,7 +5,7 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-    ofBackground(0);
+   // ofBackground(0);
     ofSetFrameRate(60);
     
     doControlPanelDraw = false;
@@ -31,6 +31,8 @@ void ofApp::update()
 //--------------------------------------------------------------
 void ofApp::draw()
 {
+    //particlesController.particleTexture.draw(0, 0);
+
     cam.begin();
     
     particlesController.draw();
@@ -41,6 +43,7 @@ void ofApp::draw()
         controlPanel.draw();
 
     }
+    
 }
 
 //--------------------------------------------------------------

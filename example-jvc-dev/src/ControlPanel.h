@@ -31,6 +31,7 @@ public:
     void draw()
     {
         gui.begin();
+        
         if(!ImGui::Begin("Particles", &showParticlesWindow))
         {
             ImGui::End();
