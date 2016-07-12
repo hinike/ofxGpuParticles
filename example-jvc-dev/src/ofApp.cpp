@@ -8,7 +8,7 @@ void ofApp::setup()
    // ofBackground(0);
     ofSetFrameRate(60);
     
-    doControlPanelDraw = false;
+    doControlPanelDraw = true;
     
     particlesController.setup();
     
