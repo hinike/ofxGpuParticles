@@ -10,9 +10,9 @@ void ofApp::setup()
     
     doControlPanelDraw = true;
     
-    particlesController.setup();
+    particleSystemManager.setup();
     
-    controlPanel.particlesController = &particlesController;
+    controlPanel.particleSystemManager = &particleSystemManager;
     controlPanel.cam = &cam;
 
     
@@ -23,7 +23,7 @@ void ofApp::setup()
 //--------------------------------------------------------------
 void ofApp::update()
 {
-    particlesController.update();
+    particleSystemManager.update();
 }
 
 
@@ -35,7 +35,7 @@ void ofApp::draw()
 
     cam.begin();
     
-    particlesController.draw();
+    particleSystemManager.draw();
     cam.end();
     
     if(doControlPanelDraw)
@@ -55,6 +55,10 @@ void ofApp::keyPressed(int key){
     if(key == '1')
     {
         cam.reset();
+    }
+    if(key == ' ')
+    {
+        particleSystemManager.nextSystem();
     }
 }
 

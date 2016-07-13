@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "ControlPanel.h"
-#include "ParticlesController.h"
+#include "ParticleSystemManager.h"
 
 
 class ofApp : public ofBaseApp
@@ -23,7 +23,7 @@ public:
     void gotMessage(ofMessage msg);
     
     
-    ParticlesController particlesController;
+    ParticleSystemManager particleSystemManager;
     ofEasyCam cam;
     
     ControlPanel controlPanel;

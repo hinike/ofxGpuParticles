@@ -1,14 +1,14 @@
 #pragma once
 #include "ofMain.h"
 #include "ofxImGui.h"
-#include "ParticlesController.h"
+#include "ParticleSystemManager.h"
 
 class ControlPanel
 {
 public:
     
     ofxImGui gui;
-    ParticlesController* particlesController;
+    ParticleSystemManager* particleSystemManager;
     
     
     ofEasyCam* cam;
@@ -20,7 +20,7 @@ public:
     ControlPanel()
     {
         showParticlesWindow = true;
-        particlesController = NULL;
+        particleSystemManager = NULL;
         camDisableMouseInput = false;
         particlesWidth = 1000;
         particlesHeight = 1000;
@@ -30,6 +30,8 @@ public:
     
     void draw()
     {
+        if(!particleSystemManager->currentSystem) return;
+        BaseParticleSystem* currentSystem = particleSystemManager->currentSystem;
         gui.begin();
         
         if(!ImGui::Begin("Particles", &showParticlesWindow))
@@ -39,33 +41,33 @@ public:
         {
             if(ImGui::SliderInt("particlesWidth", &particlesWidth, 100, 5000))
             {
-                particlesController->createParticles(particlesWidth, particlesHeight);
+                currentSystem->createParticles(particlesWidth, particlesHeight);
             }
             
             if(ImGui::SliderInt("particlesHeight", &particlesHeight, 100, 5000))
             {
-                particlesController->createParticles(particlesWidth, particlesHeight);
+                currentSystem->createParticles(particlesWidth, particlesHeight);
             }
             
             
-            ImGui::SliderFloat("magnitudeFactor", &particlesController->magnitudeFactor, 0.0f, 1000.0f);
-            ImGui::SliderFloat("radiusSquared", &particlesController->radiusSquared, 0.0f, 80000.0f);
+            ImGui::SliderFloat("magnitudeFactor", &currentSystem->magnitudeFactor, 0.0f, 1000.0f);
+            ImGui::SliderFloat("radius", &currentSystem->radius, 0.0f, 400.0f);
 
-            ImGui::SliderFloat("gravity X", &particlesController->gravity.x, -1000.0f, 1000.0f);
-            ImGui::SliderFloat("gravity Y", &particlesController->gravity.y, -1000.0f, 1000.0f);
-            ImGui::SliderFloat("gravity Z", &particlesController->gravity.z, -1000.0f, 1000.0f);
+            ImGui::SliderFloat("gravity X", &currentSystem->gravity.x, -1000.0f, 1000.0f);
+            ImGui::SliderFloat("gravity Y", &currentSystem->gravity.y, -1000.0f, 1000.0f);
+            ImGui::SliderFloat("gravity Z", &currentSystem->gravity.z, -1000.0f, 1000.0f);
             
             if(ImGui::Button("Reset Particles"))
             {
                 particlesWidth = 1000;
                 particlesHeight = 1000;
-                particlesController->createParticles(particlesWidth, particlesHeight);
+                currentSystem->createParticles(particlesWidth, particlesHeight);
 
             }
             
             if(ImGui::Button("reset Gravity"))
             {
-                particlesController->gravity.set(0, 0, 0);
+                currentSystem->gravity.set(0, 0, 0);
             }
             
             

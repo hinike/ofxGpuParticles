@@ -33,12 +33,11 @@
 
 #include "ofMain.h"
 
-class GpuParticles;
 class GpuParticlesListener
 {
 public:
-    virtual void onParticlesUpdate(GpuParticles* particles)=0;
-    virtual void onParticlesDraw(GpuParticles* particles)=0;
+    virtual void onParticlesUpdate()=0;
+    virtual void onParticlesDraw()=0;
     
 };
 
@@ -59,34 +58,31 @@ public:
     };
     
     
-    GpuParticlesListener* updateListener;
-    GpuParticlesListener* drawListener;
-    const string UPDATE_SHADER_NAME = "update";
-    const string DRAW_SHADER_NAME = "draw";
+    GpuParticlesListener* listener;
+
     
     ofFbo fbos[2];
     ofVboMesh mesh;
     ofVboMesh quadMesh;
-    ofShader updateShader, drawShader;
-    unsigned currentReadFbo;
-    unsigned textureLocation;
-    unsigned width, height, numFloats;
+    ofShader* updateShader;
+    ofShader* drawShader;
+    int currentReadFbo;
+    int textureLocation;
+    int width, height, numFloats;
+    int numDataTextures;
     
     GpuParticles()
     {
-        updateListener = NULL;
-        drawListener = NULL;
+        listener = NULL;
         currentReadFbo = 0;
         textureLocation = 0;
+        numDataTextures = 2;
     }
     
-    void init(unsigned width, unsigned height,
-              ofPrimitiveMode primitive = OF_PRIMITIVE_POINTS,
-              bool loadDefaultShaders = false,
-              int numDataTextures = 2)
+    void init(int width_, int height_)
     {
-        this->width = width;
-        this->height = height;
+        width = width_;
+        height = height_;
         numFloats = width * height * FLOATS_PER_TEXEL;
         
         // fbos
@@ -115,7 +111,7 @@ public:
                 mesh.addTexCoord(ofVec2f(x, y));
             }
         }
-        mesh.setMode(primitive);
+        mesh.setMode(OF_PRIMITIVE_POINTS);
         
         quadMesh.addVertex(ofVec3f(-1.f, -1.f, 0.f));
         quadMesh.addVertex(ofVec3f(1.f, -1.f, 0.f));
@@ -136,133 +132,10 @@ public:
         
         quadMesh.setMode(OF_PRIMITIVE_TRIANGLES);
         
-        // shaders
-        if (loadDefaultShaders)
-        {
-            updateShader.load(UPDATE_SHADER_NAME);
-            drawShader.load(DRAW_SHADER_NAME);
-        }
+
     }
-#if 0
-    void loadShaders(const string& updateShaderName, const string& drawShaderName)
-    {
-        updateShader.load(updateShaderName);
-        drawShader.load(drawShaderName);
-    }
-#endif
-#define STRINGIFY(A) #A
-    void loadShaders()
-    {
-        string HEADER = "#version 330\n";
-        string updateVert = HEADER;
-        string updateFrag = HEADER;
-        string drawVert = HEADER;
-        string drawFrag = HEADER;
-        
-        updateVert+= STRINGIFY(
-                               in vec4  position;
-                               in vec2  texcoord;
-                               
-                               out vec2 texCoordVarying;
-                               
-                               void main()
-                               {
-                                   texCoordVarying = texcoord;
-                                   gl_Position = position;
-                               }
-                               
-                               );
-        
-        updateFrag += STRINGIFY(
-                                // ping pong inputs
-                                uniform sampler2DRect particles0;
-                                uniform sampler2DRect particles1;
-                                
-                                uniform vec3 mouse;
-                                uniform vec3 gravity;
-                                uniform float radiusSquared;
-                                uniform float elapsed;
-                                uniform float magnitudeFactor;
-                                in vec2 texCoordVarying;
-                                
-                                layout(location = 0) out vec4 posOut;
-                                layout(location = 1) out vec4 velOut;
-                                
-                                void main()
-                                {
-                                    vec3 pos = texture(particles0, texCoordVarying.st).xyz;
-                                    vec3 vel = texture(particles1, texCoordVarying.st).xyz;
-                                    
-                                    // mouse attraction
-                                    vec3 direction = mouse - pos.xyz;
-                                    float distSquared = dot(direction, direction);
-                                    float magnitude = magnitudeFactor * (1.0 - distSquared / radiusSquared);
-                                    vec3 force = step(distSquared, radiusSquared) * magnitude * normalize(direction);
-                                    
-                                    // gravity
-                                    //force += vec3(0.0, -0.5, 0.0);
-                                    force += gravity;
-                                    // accelerate
-                                    vel += elapsed * force;
-                                    
-                                    // bounce off the sides
-                                    vel.x *= step(abs(pos.x), 512.0) * 2.0 - 1.0;
-                                    vel.y *= step(abs(pos.y), 384.0) * 2.0 - 1.0;
-                                    
-                                    // damping
-                                    vel *= 0.995;
-                                    
-                                    // move
-                                    pos += elapsed * vel;
-                                    
-                                    posOut = vec4(pos, 1.0);
-                                    velOut = vec4(vel, 0.0);
-                                }
-                                );
-        
-        drawVert += STRINGIFY(
-                              
-                              uniform mat4 modelViewProjectionMatrix;
-                              uniform sampler2DRect particles0;
-                              uniform sampler2DRect particles1;
-                              
-                              in vec4  position;
-                              in vec2  texcoord;
-                              
-                              out vec2 texCoordVarying;
-                              
-                              void main()
-                              {
-                                  texCoordVarying = texcoord;
-                                  gl_Position = modelViewProjectionMatrix * vec4(texture(particles0, texCoordVarying).xyz, 1.0);
-                              });
-        drawFrag += STRINGIFY(
-                              
-                              
-                              uniform vec4 globalColor;
-                              uniform sampler2DRect tex0;
-                              in vec2 texCoordVarying;
-                              
-                              out vec4 fragColor;
-                              
-                              
-                              void main()
-                              {
-                                  //fragColor = texture(tex0, texCoordVarying)*globalColor;
-                                  fragColor = texture(tex0, texCoordVarying)*vec4(1.0, 1.0, 1.0, 0.2);
-                                  //fragColor = globalColor;
-                                  
-                              });
-        updateShader.setupShaderFromSource(GL_VERTEX_SHADER, updateVert);
-        updateShader.setupShaderFromSource(GL_FRAGMENT_SHADER, updateFrag);
-        updateShader.bindDefaults();
-        updateShader.linkProgram();
-        
-        drawShader.setupShaderFromSource(GL_VERTEX_SHADER, drawVert);
-        drawShader.setupShaderFromSource(GL_FRAGMENT_SHADER, drawFrag);
-        drawShader.bindDefaults();
-        drawShader.linkProgram();
-    }
+
+
     void update()
     {
         
@@ -274,16 +147,7 @@ public:
         glViewport(0, 0, width, height);
         glDisable(GL_BLEND);
         fbos[1 - currentReadFbo].activateAllDrawBuffers();
-        
-        updateShader.begin();
-        
-        if(updateListener)
-        {
-            updateListener->onParticlesUpdate(this);
-        }
-        setUniforms(updateShader);
-        quadMesh.draw();
-        updateShader.end();
+        listener->onParticlesUpdate();
         glPopAttrib();
         
         fbos[1 - currentReadFbo].end();
@@ -293,19 +157,10 @@ public:
     
     void draw()
     {
-
-        drawShader.begin();
-        if(drawListener)
-        {
-            drawListener->onParticlesDraw(this);
-        }
-        setUniforms(drawShader);
-        mesh.draw();
-        drawShader.end();
-
+        listener->onParticlesDraw();
     }
     
-    void setUniforms(ofShader& shader)
+    void setUniforms(ofShader* shader)
     {
         for (unsigned i = 0; i < fbos[currentReadFbo].getNumTextures(); ++i)
         {
@@ -313,7 +168,7 @@ public:
             oss << "particles" << ofToString(i);
             //ofLogVerbose() << "oss.str(): " << oss.str();
             
-            shader.setUniformTexture(oss.str().c_str(), fbos[currentReadFbo].getTexture(i), i + textureLocation);
+            shader->setUniformTexture(oss.str().c_str(), fbos[currentReadFbo].getTexture(i), i + textureLocation);
         }
     }
     

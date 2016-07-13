@@ -3,3 +3,10 @@
 example/bin/*.app
 */*/xcuserdata
 */*/*/xcuserdata
+
+*.app
+
+/example-jvc-dev/config.make
+/example-jvc-dev/Makefile
+/example-jvc-dev/openFrameworks-Info.plist
+/example-jvc-dev/Project.xcconfig
