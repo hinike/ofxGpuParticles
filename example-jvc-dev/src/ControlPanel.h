@@ -32,6 +32,9 @@ public:
     {
         if(!particleSystemManager->currentSystem) return;
         BaseParticleSystem* currentSystem = particleSystemManager->currentSystem;
+        
+        particlesWidth = currentSystem->particleWidth;
+        particlesHeight = currentSystem->particleHeight;
         gui.begin();
         
         if(!ImGui::Begin("Particles", &showParticlesWindow))
@@ -59,10 +62,7 @@ public:
             
             if(ImGui::Button("Reset Particles"))
             {
-                particlesWidth = 1000;
-                particlesHeight = 1000;
-                currentSystem->createParticles(particlesWidth, particlesHeight);
-
+                currentSystem->createParticles(currentSystem->resetWidth, currentSystem->resetHeight);
             }
             
             if(ImGui::Button("reset Gravity"))

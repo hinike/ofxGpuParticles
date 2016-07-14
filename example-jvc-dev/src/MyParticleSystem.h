@@ -7,6 +7,8 @@ class MyParticleSystem : public BaseParticleSystem
 public:
     
     
+    ofTexture particleTexture;
+
     MyParticleSystem()
     {
         magnitudeFactor = 500.f;
@@ -16,39 +18,34 @@ public:
     }
     void setup()
     {
+        ofLoadImage(particleTexture, "of.png");
         loadShaders();
     }
     
-    void createParticles(int w=1000, int h=1000)
+    void createParticles(int w, int h)
     {
-        
-        if(particles)
-        {
-            delete particles;
-        }
-        particles = new GpuParticles();
-        particles->updateShader = &updateShader;
-        particles->drawShader = &drawShader;
-        particles->init(w, h);
-        
+        initParticles(w, h);
         
         // initial positions
         // use new to allocate 4,000,000 floats on the heap rather than
         // the stack
-        float* particlePosns = new float[w * h * 4];
+        
+        
+        vector<float> positions;
+        positions.reserve(w * h * 4);
+        
         for (unsigned y = 0; y < h; ++y)
         {
             for (unsigned x = 0; x < w; ++x)
             {
                 unsigned idx = y * w + x;
-                particlePosns[idx * 4] = 400.f * x / (float)w - 200.f; // particle x
-                particlePosns[idx * 4 + 1] = 400.f * y / (float)h - 200.f; // particle y
-                particlePosns[idx * 4 + 2] = 0.f; // particle z
-                particlePosns[idx * 4 + 3] = 0.f; // dummy
+                positions[idx * 4] = 400.f * x / (float)w - 200.f; // particle x
+                positions[idx * 4 + 1] = 400.f * y / (float)h - 200.f; // particle y
+                positions[idx * 4 + 2] = 0.f; // particle z
+                positions[idx * 4 + 3] = 0.f; // dummy
             }
         }
-        particles->loadDataTexture(GpuParticles::POSITION, particlePosns);
-        delete[] particlePosns;
+        particles->loadDataTexture(GpuParticles::POSITION, &positions[0]);
         
         // initial velocities
         particles->zeroDataTexture(GpuParticles::VELOCITY);
@@ -56,33 +53,8 @@ public:
         // listen for update event to set additonal update uniforms
         particles->listener = this;
     }
-    
-    void update()
-    {
-        particles->update();
-    }
-    
-    void draw()
-    {
-        ofPushStyle();
-        drawShader.begin();
-        ofColor globalColor(ofColor::red);
-        ofSetColor(globalColor);
-        particles->setUniforms(&drawShader);
-        
-        particles->mesh.draw();
-        
-        drawShader.end();
-        ofPopStyle();
-    }
-    
     void loadShaders()
     {
-        string HEADER = "#version 330\n";
-        string updateVert = HEADER;
-        string updateFrag = HEADER;
-        string drawVert = HEADER;
-        string drawFrag = HEADER;
         
         updateVert+= STRINGIFY(
                                in vec4  position;
@@ -166,26 +138,19 @@ public:
                               
                               uniform vec4 globalColor;
                               in vec2 texCoordVarying;
-                              
+                              uniform sampler2DRect particleTexture;
+
                               out vec4 fragColor;
                               
                               
                               void main()
                               {
-                                  fragColor = globalColor;
+                                  fragColor = texture(particleTexture, texCoordVarying)*globalColor;
                               });
-        updateShader.setupShaderFromSource(GL_VERTEX_SHADER, updateVert);
-        updateShader.setupShaderFromSource(GL_FRAGMENT_SHADER, updateFrag);
-        updateShader.bindDefaults();
-        updateShader.linkProgram();
         
-        drawShader.setupShaderFromSource(GL_VERTEX_SHADER, drawVert);
-        drawShader.setupShaderFromSource(GL_FRAGMENT_SHADER, drawFrag);
-        drawShader.bindDefaults();
-        drawShader.linkProgram();
+        compileShaders();
     }
-    
-    // set any update uniforms in this function
+
     void onParticlesUpdate()
     {
         
@@ -199,9 +164,24 @@ public:
         updateShader.setUniform1f("magnitudeFactor", magnitudeFactor);
         particles->quadMesh.draw();
         updateShader.end();
-        
-        
     }
+    
+    void draw()
+    {
+        particleTexture.bind();
+
+        drawShader.begin();
+        ofColor globalColor(ofColor::red);
+        ofSetColor(globalColor);
+        particles->setUniforms(&drawShader);
+        drawShader.setUniformTexture("particleTexture", particleTexture, 1);
+
+        particles->mesh.draw();
+        
+        drawShader.end();
+        particleTexture.unbind();
+    }
+    
 
     
 };

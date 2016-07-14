@@ -7,7 +7,6 @@ class GpuParticleSystem : public BaseParticleSystem
 public:
     
     
-    ofTexture particleTexture;
     
     
     GpuParticleSystem()
@@ -19,26 +18,14 @@ public:
     }
     void setup()
     {
-        ofLoadImage(particleTexture, "of.png");
         loadShaders();
     }
     
-    void createParticles(int w=1000, int h=1000)
+    void createParticles(int w, int h)
     {
         
-        if(particles)
-        {
-            delete particles;
-        }
-        particles = new GpuParticles();
-        particles->updateShader = &updateShader;
-        particles->drawShader = &drawShader;
-        particles->init(w, h);
-        
-        
-        // initial positions
-        // use new to allocate 4,000,000 floats on the heap rather than
-        // the stack
+        initParticles(w, h);
+
         float* particlePosns = new float[w * h * 4];
         for (unsigned y = 0; y < h; ++y)
         {
@@ -61,35 +48,8 @@ public:
         particles->listener = this;
     }
     
-    void update()
-    {
-        particles->update();
-    }
-    
-    void draw()
-    {
-        ofPushStyle();
-        particleTexture.bind();
-        drawShader.begin();
-        ofColor particleColor(ofColor::red);
-        ofSetColor(particleColor);
-        particles->setUniforms(&drawShader);
-        
-        drawShader.setUniformTexture("particleTexture", particleTexture, 1);
-        particles->mesh.draw();
-        
-        drawShader.end();
-        particleTexture.unbind();
-        ofPopStyle();
-    }
-
     void loadShaders()
     {
-        string HEADER = "#version 330\n";
-        string updateVert = HEADER;
-        string updateFrag = HEADER;
-        string drawVert = HEADER;
-        string drawFrag = HEADER;
         
         updateVert+= STRINGIFY(
                                in vec4  position;
@@ -172,7 +132,6 @@ public:
                               
                               
                               uniform vec4 globalColor;
-                              uniform sampler2DRect particleTexture;
                               in vec2 texCoordVarying;
                               
                               out vec4 fragColor;
@@ -180,20 +139,12 @@ public:
                               
                               void main()
                               {
-                                  fragColor = texture(particleTexture, texCoordVarying)*globalColor;
+                                  fragColor = globalColor;
                               });
-        updateShader.setupShaderFromSource(GL_VERTEX_SHADER, updateVert);
-        updateShader.setupShaderFromSource(GL_FRAGMENT_SHADER, updateFrag);
-        updateShader.bindDefaults();
-        updateShader.linkProgram();
-        
-        drawShader.setupShaderFromSource(GL_VERTEX_SHADER, drawVert);
-        drawShader.setupShaderFromSource(GL_FRAGMENT_SHADER, drawFrag);
-        drawShader.bindDefaults();
-        drawShader.linkProgram();
+        compileShaders();
     }
+
     
-    // set any update uniforms in this function
     void onParticlesUpdate()
     {
         
@@ -207,9 +158,23 @@ public:
         updateShader.setUniform1f("magnitudeFactor", magnitudeFactor);
         particles->quadMesh.draw();
         updateShader.end();
-        
-        
     }
+    
+    void draw()
+    {
+        drawShader.begin();
+        ofColor particleColor(ofColor::red);
+        ofSetColor(particleColor);
+        particles->setUniforms(&drawShader);
+        
+        particles->mesh.draw();
+        
+        drawShader.end();
+    }
+
+
+    
+  
     
 
 };
