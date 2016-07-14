@@ -7,11 +7,6 @@ class MyParticleSystem : public BaseParticleSystem
 public:
     
     
-    GpuParticles* particles;
-    
-    
-    
-    
     MyParticleSystem()
     {
         magnitudeFactor = 500.f;

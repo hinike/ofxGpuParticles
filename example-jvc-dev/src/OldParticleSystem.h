@@ -2,20 +2,23 @@
 #include "ofMain.h"
 #include "BaseParticleSystem.h"
 
-class GpuParticleSystem : public BaseParticleSystem
+class OldParticleSystem : public BaseParticleSystem
 {
 public:
+    
+    
+    GpuParticles* particles;
     
     
     ofTexture particleTexture;
     
     
-    GpuParticleSystem()
+    OldParticleSystem()
     {
         magnitudeFactor = 500.f;
         radius = 200.f;
         particles = NULL;
-
+        
     }
     void setup()
     {
@@ -69,10 +72,20 @@ public:
     void draw()
     {
         ofPushStyle();
-        particles->draw();
+        particleTexture.bind();
+        drawShader.begin();
+        ofColor particleColor(ofColor::red);
+        ofSetColor(particleColor);
+        particles->setUniforms(&drawShader);
+        
+        drawShader.setUniformTexture("particleTexture", particleTexture, 1);
+        particles->mesh.draw();
+        
+        drawShader.end();
+        particleTexture.unbind();
         ofPopStyle();
     }
-
+    
     void loadShaders()
     {
         string HEADER = "#version 330\n";
@@ -200,19 +213,5 @@ public:
         
         
     }
-    void onParticlesDraw()
-    {
-        particleTexture.bind();
-        drawShader.begin();
-        ofColor particleColor(ofColor::red);
-        ofSetColor(particleColor);
-        particles->setUniforms(&drawShader);
-        
-        drawShader.setUniformTexture("particleTexture", particleTexture, 1);
-        particles->mesh.draw();
-        
-        drawShader.end();
-        particleTexture.unbind();
-    }
-
+    
 };

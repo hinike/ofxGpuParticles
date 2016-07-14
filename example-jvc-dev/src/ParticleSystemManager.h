@@ -29,6 +29,12 @@ public:
         particleSystems.push_back(particleSystem);
         
         
+        GpuParticleSystem* particleSystem2 = new GpuParticleSystem();
+        particleSystem2->setup();
+        particleSystem2->createParticles(1000, 1000);
+        particleSystems.push_back(particleSystem2);
+        
+        
         MyParticleSystem* myParticleSystem = new MyParticleSystem();
         myParticleSystem->setup();
         myParticleSystem->createParticles(1000, 1000);
