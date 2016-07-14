@@ -11,8 +11,8 @@ public:
 
     MyParticleSystem()
     {
-        magnitudeFactor = 500.f;
-        radius = 200.f;
+        magnitudeFactor = 50.f;
+        radius = 20.f;
         particles = NULL;
         
     }
@@ -26,23 +26,18 @@ public:
     {
         initParticles(w, h);
         
-        // initial positions
-        // use new to allocate 4,000,000 floats on the heap rather than
-        // the stack
-        
-        
         vector<float> positions;
-        positions.reserve(w * h * 4);
-        
+        int n = particles->FLOATS_PER_TEXEL;
+        positions.reserve(w * h * n);
         for (unsigned y = 0; y < h; ++y)
         {
             for (unsigned x = 0; x < w; ++x)
             {
                 unsigned idx = y * w + x;
-                positions[idx * 4] = 400.f * x / (float)w - 200.f; // particle x
-                positions[idx * 4 + 1] = 400.f * y / (float)h - 200.f; // particle y
-                positions[idx * 4 + 2] = 0.f; // particle z
-                positions[idx * 4 + 3] = 0.f; // dummy
+                positions[idx * n] = 400.f * x / (float)w - 200.f; // particle x
+                positions[idx * n + 1] = 400.f * y / (float)h - 200.f; // particle y
+                positions[idx * n + 2] = 0.f; // particle z
+                positions[idx * n + 3] = 0.f; // dummy
             }
         }
         particles->loadDataTexture(GpuParticles::POSITION, &positions[0]);
@@ -136,7 +131,7 @@ public:
         drawFrag += STRINGIFY(
                               
                               
-                              uniform vec4 globalColor;
+                              uniform vec4 particleColor;
                               in vec2 texCoordVarying;
                               uniform sampler2DRect particleTexture;
 
@@ -145,7 +140,7 @@ public:
                               
                               void main()
                               {
-                                  fragColor = texture(particleTexture, texCoordVarying)*globalColor;
+                                  fragColor = texture(particleTexture, texCoordVarying)*particleColor;
                               });
         
         compileShaders();
@@ -171,11 +166,15 @@ public:
         particleTexture.bind();
 
         drawShader.begin();
-        ofColor globalColor(ofColor::red);
-        ofSetColor(globalColor);
         particles->setUniforms(&drawShader);
         drawShader.setUniformTexture("particleTexture", particleTexture, 1);
-
+        drawShader.setUniform4f("particleColor",
+                               particleColor.r,
+                               particleColor.g,
+                               particleColor.b,
+                               particleColor.a);
+       
+        
         particles->mesh.draw();
         
         drawShader.end();

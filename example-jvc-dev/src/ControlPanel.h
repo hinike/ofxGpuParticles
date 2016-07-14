@@ -65,11 +65,12 @@ public:
                 currentSystem->createParticles(currentSystem->resetWidth, currentSystem->resetHeight);
             }
             
-            if(ImGui::Button("reset Gravity"))
+            if(ImGui::Button("Reset Gravity"))
             {
                 currentSystem->gravity.set(0, 0, 0);
             }
             
+            ImGui::ColorEdit4("particleColor", (float*)&currentSystem->particleColor);
             
             if(ImGui::Button("Toggle Cam Mouse"))
             {

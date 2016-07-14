@@ -37,7 +37,6 @@ class GpuParticlesListener
 {
 public:
     virtual void onParticlesUpdate()=0;
-    //virtual void onParticlesDraw()=0;
     
 };
 
@@ -47,7 +46,7 @@ public:
 class GpuParticles
 {
 public:
-    static const unsigned FLOATS_PER_TEXEL = 4;
+    int FLOATS_PER_TEXEL = 4;
     
     // you don't have to use these but makes
     // code more readable
@@ -64,8 +63,6 @@ public:
     ofFbo fbos[2];
     ofVboMesh mesh;
     ofVboMesh quadMesh;
-    ofShader* updateShader;
-    ofShader* drawShader;
     int currentReadFbo;
     int textureLocation;
     int width, height, numFloats;

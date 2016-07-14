@@ -6,8 +6,8 @@
 void ofApp::setup()
 {
    // ofBackground(0);
-    //ofSetVerticalSync(false);
-    //ofSetFrameRate(90);
+    ofSetVerticalSync(false);
+    ofSetFrameRate(90);
     
     doControlPanelDraw = true;
     

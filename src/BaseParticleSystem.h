@@ -14,7 +14,7 @@ public:
     float magnitudeFactor;
     float radius;
     ofVec3f gravity;
-    
+    ofFloatColor particleColor;
     
     string HEADER = "#version 330\n";
     string updateVert = HEADER;
@@ -30,7 +30,8 @@ public:
     {
         magnitudeFactor = 0;
         radius = 0;
-        particles = NULL;        
+        particles = NULL;
+        particleColor = ofColor::white;
     }
     
     void compileShaders()
@@ -62,8 +63,6 @@ public:
             delete particles;
         }
         particles = new GpuParticles();
-        particles->updateShader = &updateShader;
-        particles->drawShader = &drawShader;
         particles->init(particleWidth, particleHeight);
     }
     

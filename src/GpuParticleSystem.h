@@ -131,7 +131,7 @@ public:
         drawFrag += STRINGIFY(
                               
                               
-                              uniform vec4 globalColor;
+                              uniform vec4 particleColor;
                               in vec2 texCoordVarying;
                               
                               out vec4 fragColor;
@@ -139,7 +139,7 @@ public:
                               
                               void main()
                               {
-                                  fragColor = globalColor;
+                                  fragColor = particleColor;
                               });
         compileShaders();
     }
@@ -163,10 +163,12 @@ public:
     void draw()
     {
         drawShader.begin();
-        ofColor particleColor(ofColor::red);
-        ofSetColor(particleColor);
         particles->setUniforms(&drawShader);
-        
+        drawShader.setUniform4f("particleColor",
+                               particleColor.r,
+                               particleColor.g,
+                               particleColor.b,
+                               particleColor.a);
         particles->mesh.draw();
         
         drawShader.end();
