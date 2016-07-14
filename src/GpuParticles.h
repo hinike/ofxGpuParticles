@@ -37,7 +37,7 @@ class GpuParticlesListener
 {
 public:
     virtual void onParticlesUpdate()=0;
-    virtual void onParticlesDraw()=0;
+    //virtual void onParticlesDraw()=0;
     
 };
 
@@ -155,10 +155,6 @@ public:
         currentReadFbo = 1 - currentReadFbo;
     }
     
-    void draw()
-    {
-        listener->onParticlesDraw();
-    }
     
     void setUniforms(ofShader* shader)
     {

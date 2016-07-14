@@ -28,6 +28,6 @@ public:
     virtual void draw()=0;
     virtual void loadShaders()=0;
     virtual void onParticlesUpdate()=0;
-    virtual void onParticlesDraw()=0;
+    //virtual void onParticlesDraw()=0;
     
 };

@@ -69,7 +69,17 @@ public:
     void draw()
     {
         ofPushStyle();
-        particles->draw();
+        particleTexture.bind();
+        drawShader.begin();
+        ofColor particleColor(ofColor::red);
+        ofSetColor(particleColor);
+        particles->setUniforms(&drawShader);
+        
+        drawShader.setUniformTexture("particleTexture", particleTexture, 1);
+        particles->mesh.draw();
+        
+        drawShader.end();
+        particleTexture.unbind();
         ofPopStyle();
     }
 
@@ -200,19 +210,6 @@ public:
         
         
     }
-    void onParticlesDraw()
-    {
-        particleTexture.bind();
-        drawShader.begin();
-        ofColor particleColor(ofColor::red);
-        ofSetColor(particleColor);
-        particles->setUniforms(&drawShader);
-        
-        drawShader.setUniformTexture("particleTexture", particleTexture, 1);
-        particles->mesh.draw();
-        
-        drawShader.end();
-        particleTexture.unbind();
-    }
+    
 
 };

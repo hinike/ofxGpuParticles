@@ -65,7 +65,14 @@ public:
     void draw()
     {
         ofPushStyle();
-        particles->draw();
+        drawShader.begin();
+        ofColor globalColor(ofColor::red);
+        ofSetColor(globalColor);
+        particles->setUniforms(&drawShader);
+        
+        particles->mesh.draw();
+        
+        drawShader.end();
         ofPopStyle();
     }
     
@@ -195,16 +202,6 @@ public:
         
         
     }
-    void onParticlesDraw()
-    {
-        drawShader.begin();
-        ofColor globalColor(ofColor::red);
-        ofSetColor(globalColor);
-        particles->setUniforms(&drawShader);
-        
-        particles->mesh.draw();
-        
-        drawShader.end();
-    }
+
     
 };
