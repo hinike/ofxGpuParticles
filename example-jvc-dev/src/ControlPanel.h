@@ -63,7 +63,10 @@ public:
             
             ImGui::SliderFloat("edgeWidth", &currentSystem->edgeWidth, 0, ofGetWidth());
             ImGui::SliderFloat("edgeHeight", &currentSystem->edgeHeight, 0, ofGetHeight());
+            
+            ImGui::SliderFloat("geomSize", &currentSystem->geomSize, 0.0f, 50.f);
 
+            
             ImGui::SliderFloat("bounceVelocity", &currentSystem->bounceVelocity, 1.00f, 2.10f);
 
             if(ImGui::Button("Reset Particles"))

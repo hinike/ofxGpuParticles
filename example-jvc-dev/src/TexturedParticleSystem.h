@@ -195,7 +195,7 @@ public:
         drawShader.end();
         particleTexture.unbind();
         
-        particles->mesh.drawWireframe();
+        //particles->mesh.drawWireframe();
         //particles->quadMesh.drawWireframe();
     }
     

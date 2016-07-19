@@ -18,7 +18,7 @@ public:
     float edgeHeight;
     ofVec3f gravity;
     ofFloatColor particleColor;
-    
+    float geomSize;
     
     string HEADER = "#version 330\n";
     string updateVert = HEADER;
@@ -39,6 +39,7 @@ public:
         bounceVelocity = 2.0;
         particles = NULL;
         particleColor = ofColor::white;
+        geomSize = 2.0f;
     }
     
     void compileShaders()

@@ -51,7 +51,7 @@
 
 /* Begin PBXFileReference section */
 		0366DDD01D3EABE1005C8EDC /* GeoParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoParticleSystem.h; sourceTree = "<group>"; };
-		0366DDD11D3EB789005C8EDC /* drawShader.geom */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = drawShader.geom; path = bin/data/drawShader.geom; sourceTree = SOURCE_ROOT; };
+		0366DDD21D3EC545005C8EDC /* GeoParticleSystemTextured.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoParticleSystemTextured.h; sourceTree = "<group>"; };
 		0BB9F7D314FADD51BAB96878 /* ThemeTest.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ThemeTest.h; path = ../../../addons/ofxImGui/src/ThemeTest.h; sourceTree = SOURCE_ROOT; };
 		0D69749DC16A63170FE23709 /* GpuParticles.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = GpuParticles.h; path = ../../../addons/ofxGpuParticles/src/GpuParticles.h; sourceTree = SOURCE_ROOT; };
 		0F99D91BAC240A07901D0E6A /* stb_rect_pack.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = stb_rect_pack.h; path = ../../../addons/ofxImGui/libs/imgui/src/stb_rect_pack.h; sourceTree = SOURCE_ROOT; };
@@ -218,7 +218,6 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				0366DDD11D3EB789005C8EDC /* drawShader.geom */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
@@ -227,6 +226,7 @@
 				3557AA73C6195E25CB800C62 /* ParticleSystemManager.h */,
 				F3C80AAF3D2936A7005793CF /* TexturedParticleSystem.h */,
 				0366DDD01D3EABE1005C8EDC /* GeoParticleSystem.h */,
+				0366DDD21D3EC545005C8EDC /* GeoParticleSystemTextured.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;

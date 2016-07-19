@@ -2,14 +2,15 @@
 #include "ofMain.h"
 #include "BaseParticleSystem.h"
 
-class GeoParticleSystem : public BaseParticleSystem
+class GeoParticleSystemTextured : public BaseParticleSystem
 {
 public:
     
     
     
-    
-    GeoParticleSystem()
+    ofTexture particleTexture;
+
+    GeoParticleSystemTextured()
     {
         magnitudeFactor = 500.f;
         radius = 200.f;
@@ -18,6 +19,7 @@ public:
     }
     void setup()
     {
+        ofLoadImage(particleTexture, "of.png");
         loadShaders();
     }
     
@@ -62,11 +64,10 @@ public:
                                    texCoordVarying = texcoord;
                                    gl_Position = position;
                                }
-                               
-                               );
+
+    );
         
         updateFrag += STRINGIFY(
-                                // ping pong inputs
                                 uniform sampler2DRect particles0;
                                 uniform sampler2DRect particles1;
                                 
@@ -79,6 +80,7 @@ public:
                                 
                                 layout(location = 0) out vec4 posOut;
                                 layout(location = 1) out vec4 velOut;
+                                
                                 
                                 void main()
                                 {
@@ -113,34 +115,24 @@ public:
                                 );
         
         drawVert += STRINGIFY(
-                              
-                              uniform mat4 modelViewProjectionMatrix;
-                              uniform sampler2DRect particles0;
-                              uniform sampler2DRect particles1;
-                              
-                              in vec4  position;
-                              in vec2  texcoord;
-                              
-                              out vec2 texCoordVarying;
-                              
-                              void main()
-                              {
-                                  texCoordVarying = texcoord;
-                                  gl_Position = modelViewProjectionMatrix * vec4(texture(particles0, texCoordVarying).xyz, 1.0);
-                              });
-        drawFrag += STRINGIFY(
-                              
-                              
-                              in vec4 geomOutputColor;
-                              in vec2 texCoordVarying;
-                              
-                              out vec4 fragColor;
-                              
-                              
-                              void main()
-                              {
-                                  fragColor = geomOutputColor;
-                              });
+                                uniform mat4 modelViewProjectionMatrix;
+                                uniform sampler2DRect particles0;
+                                uniform sampler2DRect particles1;
+
+                                in vec4  position;
+                                in vec2  texcoord;
+
+                                out VS_OUT {
+                                  vec2 texCoordVarying;
+                                } vs_out;
+
+                                void main()
+                                {
+                                    vs_out.texCoordVarying = texcoord;
+                                    gl_Position = modelViewProjectionMatrix * vec4(texture(particles0, texcoord).xyz, 1.0);
+                                }
+
+    );
         
         string drawGeom = HEADER;
         drawGeom += STRINGIFY(
@@ -151,31 +143,63 @@ public:
                               uniform vec4 particleColor;
                               uniform float geomSize;
                               
-                              out vec4 geomOutputColor;
+                              in VS_OUT {
+                                  vec2 texCoordVarying;
+                              } gs_in[];
                               
+                              out vec4 geomOutputColor;
+                              out vec2 geomTexCoordVarying;
                               void main() { 
+                                  
                                   
                                   vec4 position = gl_in[0].gl_Position;
                                   
                                   gl_Position = position + vec4(-geomSize, -geomSize, 0.0f, 0.0f);    // 1:bottom-left
+                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
                                   geomOutputColor = particleColor;
                                   EmitVertex();   
+                                  
                                   gl_Position = position + vec4( geomSize, -geomSize, 0.0f, 0.0f);    // 2:bottom-right
+                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
                                   geomOutputColor = particleColor;
                                   EmitVertex();
+                                  
                                   gl_Position = position + vec4(-geomSize,  geomSize, 0.0f, 0.0f);    // 3:top-left
+                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
                                   geomOutputColor = particleColor;
                                   EmitVertex();
+                                  
                                   gl_Position = position + vec4( geomSize,  geomSize, 0.0f, 0.0f);    // 4:top-right
+                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
                                   geomOutputColor = particleColor;
                                   EmitVertex();
                                   
                                   EndPrimitive();
                               }
         
-        
         );
         
+        drawFrag += STRINGIFY(
+                            in vec4 geomOutputColor;
+
+                            out vec4 fragColor;
+                            in vec2 geomTexCoordVarying;
+                            uniform sampler2DRect particleTexture;
+                            void main()
+                            {
+                                fragColor = texture(particleTexture, geomTexCoordVarying)*geomOutputColor;
+                            }
+        );
+        
+       
+        /*
+        updateVert = ofBufferFromFile("updateVert").getText();
+        updateFrag = ofBufferFromFile("updateFrag").getText();
+        
+        drawVert = ofBufferFromFile("drawVert").getText();
+        drawGeom = ofBufferFromFile("drawGeom").getText();
+        drawFrag = ofBufferFromFile("drawFrag").getText();
+        */
         updateShader.setupShaderFromSource(GL_VERTEX_SHADER, updateVert);
         updateShader.setupShaderFromSource(GL_FRAGMENT_SHADER, updateFrag);
         updateShader.bindDefaults();
@@ -213,10 +237,12 @@ public:
     
     void draw()
     {
+        particleTexture.bind();
         drawShader.begin();
         particles->setUniforms(&drawShader);
         drawShader.setUniform1f("geomSize", geomSize);
-        
+        drawShader.setUniformTexture("particleTexture", particleTexture, 1);
+
         drawShader.setUniform4f("particleColor",
                                 particleColor.r,
                                 particleColor.g,
@@ -225,6 +251,8 @@ public:
         particles->mesh.draw();
         
         drawShader.end();
+        particleTexture.unbind();
+
     }
     
     
