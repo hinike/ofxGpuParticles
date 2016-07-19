@@ -10,3 +10,5 @@ example/bin/*.app
 /example-jvc-dev/Makefile
 /example-jvc-dev/openFrameworks-Info.plist
 /example-jvc-dev/Project.xcconfig
+
+/example-jvc-dev/bin/data/video.mp4
