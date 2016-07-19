@@ -4,6 +4,7 @@
 #include "GpuParticleSystem.h"
 #include "TexturedParticleSystem.h"
 #include "ParticleSystem3D.h"
+#include "GeoParticleSystem.h"
 
 class ParticleSystemManager
 {
@@ -23,7 +24,7 @@ public:
     
     void setup()
     {
-
+        /*
         GpuParticleSystem* particleSystem = new GpuParticleSystem();
         particleSystem->setup();
         particleSystem->createParticles(1000, 1000);
@@ -39,6 +40,13 @@ public:
         particleSystem3d->setup();
         particleSystem3d->createParticles(particleSystem3d->particleTexture.getWidth(), particleSystem3d->particleTexture.getHeight());
         particleSystems.push_back(particleSystem3d);
+        
+        */
+        GeoParticleSystem* geoParticleSystem = new GeoParticleSystem();
+
+        geoParticleSystem->setup();
+        geoParticleSystem->createParticles(200, 200);
+        particleSystems.push_back(geoParticleSystem);
         
         currentIndex = 0;
         

@@ -2,18 +2,14 @@
 #include "ofMain.h"
 #include "BaseParticleSystem.h"
 
-class OldParticleSystem : public BaseParticleSystem
+class GeoParticleSystem : public BaseParticleSystem
 {
 public:
     
     
-    GpuParticles* particles;
     
     
-    ofTexture particleTexture;
-    
-    
-    OldParticleSystem()
+    GeoParticleSystem()
     {
         magnitudeFactor = 500.f;
         radius = 200.f;
@@ -22,26 +18,14 @@ public:
     }
     void setup()
     {
-        ofLoadImage(particleTexture, "of.png");
         loadShaders();
     }
     
-    void createParticles(int w=1000, int h=1000)
+    void createParticles(int w, int h)
     {
         
-        if(particles)
-        {
-            delete particles;
-        }
-        particles = new GpuParticles();
-        particles->updateShader = &updateShader;
-        particles->drawShader = &drawShader;
-        particles->init(w, h);
+        initParticles(w, h);
         
-        
-        // initial positions
-        // use new to allocate 4,000,000 floats on the heap rather than
-        // the stack
         float* particlePosns = new float[w * h * 4];
         for (unsigned y = 0; y < h; ++y)
         {
@@ -64,35 +48,8 @@ public:
         particles->listener = this;
     }
     
-    void update()
-    {
-        particles->update();
-    }
-    
-    void draw()
-    {
-        ofPushStyle();
-        particleTexture.bind();
-        drawShader.begin();
-        ofColor particleColor(ofColor::red);
-        ofSetColor(particleColor);
-        particles->setUniforms(&drawShader);
-        
-        drawShader.setUniformTexture("particleTexture", particleTexture, 1);
-        particles->mesh.draw();
-        
-        drawShader.end();
-        particleTexture.unbind();
-        ofPopStyle();
-    }
-    
     void loadShaders()
     {
-        string HEADER = "#version 330\n";
-        string updateVert = HEADER;
-        string updateFrag = HEADER;
-        string drawVert = HEADER;
-        string drawFrag = HEADER;
         
         updateVert+= STRINGIFY(
                                in vec4  position;
@@ -174,8 +131,7 @@ public:
         drawFrag += STRINGIFY(
                               
                               
-                              uniform vec4 globalColor;
-                              uniform sampler2DRect particleTexture;
+                              in vec4 geomOutputColor;
                               in vec2 texCoordVarying;
                               
                               out vec4 fragColor;
@@ -183,20 +139,71 @@ public:
                               
                               void main()
                               {
-                                  fragColor = texture(particleTexture, texCoordVarying)*globalColor;
+                                  fragColor = geomOutputColor;
                               });
+        
+        string drawGeom = HEADER;
+        
+        drawGeom += STRINGIFY(
+                              
+                              layout (points) in;
+                              layout (triangle_strip, max_vertices = 4) out;
+                              
+                              uniform mat4 modelViewProjectionMatrix;
+                              uniform vec4 particleColor;
+                              out vec4 geomOutputColor;
+                              in vec2 texCoordVarying;
+                              void main() {
+                                  vec4 p0 = gl_in[0].gl_Position;
+                                  
+                                  gl_Position = modelViewProjectionMatrix * p0;
+                                  
+                                  geomOutputColor = particleColor;
+                                  EmitVertex();
+                                  
+                                  gl_Position = modelViewProjectionMatrix * p0;
+                                  geomOutputColor = particleColor;
+                                  
+                                  EmitVertex();
+                                  
+                                  gl_Position = modelViewProjectionMatrix * p0;
+                                  geomOutputColor = particleColor;
+                                  
+                                  EmitVertex();
+                                  
+                                  gl_Position = modelViewProjectionMatrix * p0;
+                                  geomOutputColor = particleColor;
+                                  
+                                  EmitVertex();
+                                  
+                                  //EndPrimitive();
+                                  
+                              }
+                              );
+        
+        ofBuffer shaderSource = ofBufferFromFile("drawShader.geom");
+        drawGeom = shaderSource.getText();
+        
         updateShader.setupShaderFromSource(GL_VERTEX_SHADER, updateVert);
         updateShader.setupShaderFromSource(GL_FRAGMENT_SHADER, updateFrag);
         updateShader.bindDefaults();
         updateShader.linkProgram();
         
+        
+        drawShader.setGeometryInputType(GL_POINTS);
+        drawShader.setGeometryOutputType(GL_LINE_STRIP);
+        drawShader.setGeometryOutputCount(2);
+        
+        
         drawShader.setupShaderFromSource(GL_VERTEX_SHADER, drawVert);
+        drawShader.setupShaderFromSource(GL_GEOMETRY_SHADER_EXT, drawGeom);
         drawShader.setupShaderFromSource(GL_FRAGMENT_SHADER, drawFrag);
         drawShader.bindDefaults();
         drawShader.linkProgram();
+        
     }
     
-    // set any update uniforms in this function
+    
     void onParticlesUpdate()
     {
         
@@ -210,8 +217,25 @@ public:
         updateShader.setUniform1f("magnitudeFactor", magnitudeFactor);
         particles->quadMesh.draw();
         updateShader.end();
-        
-        
     }
+    
+    void draw()
+    {
+        drawShader.begin();
+        particles->setUniforms(&drawShader);
+        drawShader.setUniform4f("particleColor",
+                                particleColor.r,
+                                particleColor.g,
+                                particleColor.b,
+                                particleColor.a);
+        particles->mesh.draw();
+        
+        drawShader.end();
+    }
+    
+    
+    
+    
+    
     
 };
