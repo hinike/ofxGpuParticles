@@ -46,7 +46,7 @@ public:
 class GpuParticles
 {
 public:
-    int FLOATS_PER_TEXEL = 4;
+    int floatsPerTexel = 4;
     
     // you don't have to use these but makes
     // code more readable
@@ -80,7 +80,7 @@ public:
     {
         width = width_;
         height = height_;
-        numFloats = width * height * FLOATS_PER_TEXEL;
+        numFloats = width * height * floatsPerTexel;
         
         // fbos
         ofFbo::Settings s;
@@ -104,7 +104,7 @@ public:
         {
             for (int x = 0; x < width; ++x)
             {
-                mesh.addVertex(ofVec3f(200.f * x / (float)width - 100.f, 200.f * y / (float)height - 100.f, -500.f));
+                mesh.addVertex(ofVec3f(x, y));
                 mesh.addTexCoord(ofVec2f(x, y));
             }
         }
@@ -166,7 +166,10 @@ public:
     }
     
     void loadDataTexture(int idx, float* data,
-                         int x = 0, int y = 0, int width = 0, int height = 0)
+                         int x = 0,
+                         int y = 0,
+                         int width = 0,
+                         int height = 0)
     {
         if (idx < fbos[currentReadFbo].getNumTextures())
         {
@@ -175,8 +178,11 @@ public:
             fbos[currentReadFbo].getTexture(idx).bind();
             glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, x, y, width, height, GL_RGBA, GL_FLOAT, data);
             fbos[currentReadFbo].getTexture(idx).unbind();
+        }else
+        {
+            ofLogError() << "Trying to load data from array into non-existent buffer.";
+
         }
-        else ofLogError() << "Trying to load data from array into non-existent buffer.";
     }
     
     void zeroDataTexture(int idx,
@@ -184,8 +190,8 @@ public:
     {
         if (!width) width = this->width;
         if (!height) height = this->height;
-        float* zeroes = new float[width * height * FLOATS_PER_TEXEL];
-        memset(zeroes, 0, sizeof(float) * width * height * FLOATS_PER_TEXEL);
+        float* zeroes = new float[width * height * floatsPerTexel];
+        memset(zeroes, 0, sizeof(float) * width * height * floatsPerTexel);
         loadDataTexture(idx, zeroes, x, y, width, height);
         delete[] zeroes;
     }

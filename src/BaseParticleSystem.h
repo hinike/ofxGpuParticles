@@ -13,8 +13,12 @@ public:
     GpuParticles* particles;
     float magnitudeFactor;
     float radius;
+    float bounceVelocity;
+    float edgeWidth;
+    float edgeHeight;
     ofVec3f gravity;
     ofFloatColor particleColor;
+    
     
     string HEADER = "#version 330\n";
     string updateVert = HEADER;
@@ -30,6 +34,9 @@ public:
     {
         magnitudeFactor = 0;
         radius = 0;
+        edgeWidth = ofGetWidth() * 0.5;
+        edgeHeight = ofGetHeight() * 0.5;
+        bounceVelocity = 2.0;
         particles = NULL;
         particleColor = ofColor::white;
     }

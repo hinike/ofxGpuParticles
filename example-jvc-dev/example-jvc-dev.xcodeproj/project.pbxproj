@@ -53,7 +53,8 @@
 		031DCEBF1D3602EF002E8983 /* BaseParticleSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BaseParticleSystem.h; path = ../src/BaseParticleSystem.h; sourceTree = "<group>"; };
 		031DCEC01D3602EF002E8983 /* GpuParticles.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GpuParticles.h; path = ../src/GpuParticles.h; sourceTree = "<group>"; };
 		031DCEC11D3602EF002E8983 /* GpuParticleSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GpuParticleSystem.h; path = ../src/GpuParticleSystem.h; sourceTree = "<group>"; };
-		031DCEC21D360349002E8983 /* MyParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyParticleSystem.h; sourceTree = "<group>"; };
+		031DCEC21D360349002E8983 /* TexturedParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TexturedParticleSystem.h; sourceTree = "<group>"; };
+		031DCEDE1D3D5AA4002E8983 /* ParticleSystem3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystem3D.h; sourceTree = "<group>"; };
 		0BB9F7D314FADD51BAB96878 /* ThemeTest.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ThemeTest.h; path = ../../../addons/ofxImGui/src/ThemeTest.h; sourceTree = SOURCE_ROOT; };
 		0F99D91BAC240A07901D0E6A /* stb_rect_pack.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = stb_rect_pack.h; path = ../../../addons/ofxImGui/libs/imgui/src/stb_rect_pack.h; sourceTree = SOURCE_ROOT; };
 		12EBC5773B81D5E37E068E24 /* imgui_internal.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = imgui_internal.h; path = ../../../addons/ofxImGui/libs/imgui/src/imgui_internal.h; sourceTree = SOURCE_ROOT; };
@@ -220,7 +221,8 @@
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
 				1459D7D423821E978EF5B13E /* ControlPanel.h */,
 				63124F64C68514EFBEB1AB13 /* ParticleSystemManager.h */,
-				031DCEC21D360349002E8983 /* MyParticleSystem.h */,
+				031DCEC21D360349002E8983 /* TexturedParticleSystem.h */,
+				031DCEDE1D3D5AA4002E8983 /* ParticleSystem3D.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;

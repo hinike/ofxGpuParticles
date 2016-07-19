@@ -2,14 +2,14 @@
 #include "ofMain.h"
 #include "BaseParticleSystem.h"
 
-class MyParticleSystem : public BaseParticleSystem
+class TexturedParticleSystem : public BaseParticleSystem
 {
 public:
     
     
     ofTexture particleTexture;
 
-    MyParticleSystem()
+    TexturedParticleSystem()
     {
         magnitudeFactor = 50.f;
         radius = 20.f;
@@ -27,7 +27,7 @@ public:
         initParticles(w, h);
         
         vector<float> positions;
-        int n = particles->FLOATS_PER_TEXEL;
+        int n = particles->floatsPerTexel;
         positions.reserve(w * h * n);
         for (unsigned y = 0; y < h; ++y)
         {

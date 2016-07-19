@@ -2,7 +2,8 @@
 
 #include "ofMain.h"
 #include "GpuParticleSystem.h"
-#include "MyParticleSystem.h"
+#include "TexturedParticleSystem.h"
+#include "ParticleSystem3D.h"
 
 class ParticleSystemManager
 {
@@ -28,10 +29,16 @@ public:
         particleSystem->createParticles(1000, 1000);
         particleSystems.push_back(particleSystem);
         
-        MyParticleSystem* myParticleSystem = new MyParticleSystem();
-        myParticleSystem->setup();
-        myParticleSystem->createParticles(myParticleSystem->particleTexture.getWidth(), myParticleSystem->particleTexture.getHeight());
-        particleSystems.push_back(myParticleSystem);
+        TexturedParticleSystem* texturedParticleSystem = new TexturedParticleSystem();
+        texturedParticleSystem->setup();
+        texturedParticleSystem->createParticles(texturedParticleSystem->particleTexture.getWidth(), texturedParticleSystem->particleTexture.getHeight());
+        particleSystems.push_back(texturedParticleSystem);
+        
+    
+        ParticleSystem3D* particleSystem3d = new ParticleSystem3D();
+        particleSystem3d->setup();
+        particleSystem3d->createParticles(particleSystem3d->particleTexture.getWidth(), particleSystem3d->particleTexture.getHeight());
+        particleSystems.push_back(particleSystem3d);
         
         currentIndex = 0;
         

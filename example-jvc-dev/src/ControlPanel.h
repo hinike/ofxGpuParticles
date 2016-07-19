@@ -60,6 +60,12 @@ public:
             ImGui::SliderFloat("gravity Y", &currentSystem->gravity.y, -1000.0f, 1000.0f);
             ImGui::SliderFloat("gravity Z", &currentSystem->gravity.z, -1000.0f, 1000.0f);
             
+            
+            ImGui::SliderFloat("edgeWidth", &currentSystem->edgeWidth, 0, ofGetWidth());
+            ImGui::SliderFloat("edgeHeight", &currentSystem->edgeHeight, 0, ofGetHeight());
+
+            ImGui::SliderFloat("bounceVelocity", &currentSystem->bounceVelocity, 1.00f, 2.10f);
+
             if(ImGui::Button("Reset Particles"))
             {
                 currentSystem->createParticles(currentSystem->resetWidth, currentSystem->resetHeight);
