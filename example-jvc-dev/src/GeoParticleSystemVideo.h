@@ -19,7 +19,7 @@ public:
     }
     void setup()
     {
-        videoPlayer.load("video.mp4");
+        videoPlayer.load("fingers.mov");
         videoPlayer.play();
         loadShaders();
     }

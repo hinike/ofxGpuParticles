@@ -9,6 +9,7 @@ public:
     
     
     ofTexture particleTexture;
+    ofVideoPlayer videoPlayer;
     
     TexturedPerParticleSystem()
     {
@@ -19,7 +20,9 @@ public:
     }
     void setup()
     {
-        ofLoadImage(particleTexture, "of.png");
+        //ofLoadImage(particleTexture, "of.png");
+        videoPlayer.load("fingers.mov");
+        videoPlayer.play();
         loadShaders();
     }
     
@@ -219,86 +222,6 @@ public:
                                   fragColor = texture(particleTexture, geomTexCoordVarying)*particleColor;
                               });
         
-        
-        
-#if 0
-        drawVert += STRINGIFY(
-                              uniform mat4 modelViewProjectionMatrix;
-                              uniform sampler2DRect particles0;
-                              uniform sampler2DRect particles1;
-                              
-                              in vec4  position;
-                              in vec2  texcoord;
-                              
-                              out VS_OUT {
-                                  vec2 texCoordVarying;
-                              } vs_out;
-                              
-                              void main()
-                              {
-                                  //vs_out.texCoordVarying = texcoord;
-                                  gl_Position = modelViewProjectionMatrix * vec4(texture(particles0, texcoord).xyz, 1.0);
-                              });
-        
-        drawGeom += STRINGIFY(
-                              
-                              layout (points) in;
-                              layout (triangle_strip, max_vertices = 4) out;
-                              uniform mat4 modelViewProjectionMatrix;
-                              
-                              uniform sampler2DRect particleTexture;
-                              uniform float imgWidth;
-                              uniform float imgHeight;
-                              uniform float geomSize;
-                              uniform vec4 globalColor;
-                              out vec2 geomTexCoordVarying;
-                              vec4 position;
-                              
-                              in VS_OUT {
-                                  vec2 texCoordVarying;
-                              } gs_in[];
-                              
-                              void createVertex(vec4 localPosition, vec2 tPos)
-                              {
-                                  vec4 outputPosition;
-                                  outputPosition = position + localPosition;
-                                  
-                                  gl_Position = modelViewProjectionMatrix * outputPosition;
-                                  geomTexCoordVarying = tPos;
-                                  EmitVertex();
-                              }
-                              void main()
-                              {
-                                  vec2 texCoordVarying = gs_in[0].texCoordVarying;
-                                  position =  gl_in[0].gl_Position;
-                                  vec2 t1 = vec2(0.0f, 0.0f);
-                                  vec2 t2 = vec2(imgWidth, 0.0f);
-                                  vec2 t3 = vec2(imgWidth, imgHeight);
-                                  vec2 t4 = vec2(0.0f, imgHeight);
-                                  
-                                  createVertex(vec4(-geomSize, -geomSize, 0.0f, 0.0f), t3);
-                                  createVertex(vec4( geomSize, -geomSize, 0.0f, 0.0f), t4);
-                                  createVertex(vec4( -geomSize, geomSize, 0.0f, 0.0f), t2);
-                                  createVertex(vec4( geomSize, geomSize, 0.0f, 0.0f), t1);
-                                  EndPrimitive();
-                              }
-                              );
-        //3, 4, 2, 1
-        drawFrag += STRINGIFY(
-                              
-                              out vec4 fragColor;
-                              uniform vec4 globalColor;
-                              uniform sampler2DRect particleTexture;
-                              
-                              in vec2 geomTexCoordVarying;
-                              
-                              void main (void)
-                              {
-                                  
-                                  fragColor = texture(particleTexture, geomTexCoordVarying)*globalColor;
-                              }
-                              );
-#endif
         updateShader.setupShaderFromSource(GL_VERTEX_SHADER, updateVert);
         updateShader.setupShaderFromSource(GL_FRAGMENT_SHADER, updateFrag);
         updateShader.bindDefaults();
@@ -317,7 +240,8 @@ public:
     
     void onParticlesUpdate()
     {
-        
+        videoPlayer.update();
+
         updateShader.begin();
         particles->setUniforms(&updateShader);
         ofVec3f mouse(ofGetMouseX() - .5f * ofGetWidth(), .5f * ofGetHeight() - ofGetMouseY() , 0.f);
@@ -332,14 +256,14 @@ public:
     
     void draw()
     {
-        particleTexture.bind();
+        videoPlayer.getTexture().bind();
         drawShader.begin();
         particles->setUniforms(&drawShader);
         drawShader.setUniform1f("geomSize", geomSize);
-        drawShader.setUniformTexture("particleTexture", particleTexture, 1);
+        drawShader.setUniformTexture("particleTexture", videoPlayer.getTexture(), 1);
         
-        drawShader.setUniform1f("imgWidth", particleTexture.getWidth());
-        drawShader.setUniform1f("imgHeight", particleTexture.getHeight());
+        drawShader.setUniform1f("imgWidth", videoPlayer.getTexture().getWidth());
+        drawShader.setUniform1f("imgHeight", videoPlayer.getTexture().getHeight());
         
         drawShader.setUniform4f("particleColor",
                                 particleColor.r,
@@ -349,7 +273,7 @@ public:
         particles->mesh.draw();
         
         drawShader.end();
-        particleTexture.unbind();
+        videoPlayer.getTexture().unbind();
         
     }
     

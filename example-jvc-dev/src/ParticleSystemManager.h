@@ -34,16 +34,19 @@ public:
         
       
         
-#if 0      
+
+        TexturedPerParticleSystem* texturedPerParticleSystem = new TexturedPerParticleSystem();
+        texturedPerParticleSystem->setup();
+        texturedPerParticleSystem->createParticles(1000,
+                                                   1000);
+        particleSystems.push_back(texturedPerParticleSystem);
+        /*
         GeoParticleSystemVideo* geoParticleSystemVideo = new GeoParticleSystemVideo();
         geoParticleSystemVideo->setup();
         geoParticleSystemVideo->createParticles(geoParticleSystemVideo->videoPlayer.getWidth(),
                                                    geoParticleSystemVideo->videoPlayer.getHeight());
         particleSystems.push_back(geoParticleSystemVideo);
-#endif      
-        
-        
-#if 0       
+         */
         GeoParticleSystemTextured* geoParticleSystemTextured = new GeoParticleSystemTextured();
         geoParticleSystemTextured->setup();
         geoParticleSystemTextured->createParticles(geoParticleSystemTextured->particleTexture.getWidth(),
@@ -79,15 +82,8 @@ public:
         geoParticleSystemBox->createParticles(geoParticleSystemBox->particleTexture.getWidth(), 
                                               geoParticleSystemBox->particleTexture.getHeight());
         particleSystems.push_back(geoParticleSystemBox);
- #endif
 
-#if 1
-        TexturedPerParticleSystem* texturedPerParticleSystem = new TexturedPerParticleSystem();
-        texturedPerParticleSystem->setup();
-        texturedPerParticleSystem->createParticles(texturedPerParticleSystem->particleTexture.getWidth(),
-                                                   texturedPerParticleSystem->particleTexture.getHeight());
-        particleSystems.push_back(texturedPerParticleSystem);
-#endif
+
         currentIndex = 0;
         
         currentSystem = particleSystems[currentIndex];
