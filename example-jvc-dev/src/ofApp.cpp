@@ -10,12 +10,12 @@ void ofApp::setup()
     ofSetFrameRate(90);
     
     doControlPanelDraw = true;
-    
+    particleSystemManager.camera = &cam;
     particleSystemManager.setup();
     
     controlPanel.particleSystemManager = &particleSystemManager;
     controlPanel.cam = &cam;
-
+    
     
     
     //cam.disableMouseInput();

@@ -42,12 +42,12 @@ public:
             ImGui::End();
         }else
         {
-            if(ImGui::SliderInt("particlesWidth", &particlesWidth, 100, 5000))
+            if(ImGui::SliderInt("particlesWidth", &particlesWidth, 2, 5000))
             {
                 currentSystem->createParticles(particlesWidth, particlesHeight);
             }
             
-            if(ImGui::SliderInt("particlesHeight", &particlesHeight, 100, 5000))
+            if(ImGui::SliderInt("particlesHeight", &particlesHeight, 2, 5000))
             {
                 currentSystem->createParticles(particlesWidth, particlesHeight);
             }

@@ -26,22 +26,9 @@ public:
     {
         initParticles(w, h);
         
-        vector<float> positions;
         int n = particles->floatsPerTexel;
-        positions.reserve(w * h * n);
-#if 0
-        for (unsigned y = 0; y < h; ++y)
-        {
-            for (unsigned x = 0; x < w; ++x)
-            {
-                unsigned idx = y * w + x;
-                positions[idx * n] = 400.f * x / (float)w - 200.f; // particle x
-                positions[idx * n + 1] = 400.f * y / (float)h - 200.f; // particle y
-                positions[idx * n + 2] = 0.f; // particle z
-                positions[idx * n + 3] = 0.f; // dummy
-            }
-        }
-#endif
+        vector<float> positions(w * h * n);
+        
         for (unsigned x = 0; x < w; ++x)
         {
             for (unsigned y = 0; y < h; ++y)

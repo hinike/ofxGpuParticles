@@ -29,7 +29,7 @@ public:
         
         vector<float> positions;
         int n = particles->floatsPerTexel;
-        positions.reserve(w * h * n);
+        positions.resize(w * h * n);
         for (unsigned y = 0; y < h; ++y)
         {
             for (unsigned x = 0; x < w; ++x)

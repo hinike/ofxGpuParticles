@@ -7,6 +7,7 @@
 #include "GeoParticleSystem.h"
 #include "GeoParticleSystemTextured.h"
 #include "GeoParticleSystemVideo.h"
+#include "GeoParticleSystemBox.h"
 
 class ParticleSystemManager
 {
@@ -16,10 +17,13 @@ public:
     vector<BaseParticleSystem*>particleSystems;
     BaseParticleSystem* currentSystem;
     int currentIndex;
+    ofEasyCam* camera;
+
     ParticleSystemManager()
     {
         currentSystem = NULL;
         currentIndex = 0;
+        camera = NULL;
     }
     
     
@@ -27,24 +31,24 @@ public:
     void setup()
     {
         
-        GeoParticleSystemTextured* geoParticleSystemTextured = new GeoParticleSystemTextured();
-        geoParticleSystemTextured->setup();
-        geoParticleSystemTextured->createParticles(geoParticleSystemTextured->particleTexture.getWidth(),
-                                                   geoParticleSystemTextured->particleTexture.getHeight());
-        particleSystems.push_back(geoParticleSystemTextured);
+      
         
-        
+#if 0      
         GeoParticleSystemVideo* geoParticleSystemVideo = new GeoParticleSystemVideo();
         geoParticleSystemVideo->setup();
         geoParticleSystemVideo->createParticles(geoParticleSystemVideo->videoPlayer.getWidth(),
                                                    geoParticleSystemVideo->videoPlayer.getHeight());
         particleSystems.push_back(geoParticleSystemVideo);
+#endif      
         
         
-        
-        
-        
-#if 1
+#if 0       
+        GeoParticleSystemTextured* geoParticleSystemTextured = new GeoParticleSystemTextured();
+        geoParticleSystemTextured->setup();
+        geoParticleSystemTextured->createParticles(geoParticleSystemTextured->particleTexture.getWidth(),
+                                                   geoParticleSystemTextured->particleTexture.getHeight());
+        particleSystems.push_back(geoParticleSystemTextured);
+
         GpuParticleSystem* particleSystem = new GpuParticleSystem();
         particleSystem->setup();
         particleSystem->createParticles(1000, 1000);
@@ -66,9 +70,15 @@ public:
         geoParticleSystem->setup();
         geoParticleSystem->createParticles(500, 500);
         particleSystems.push_back(geoParticleSystem);
-#endif
+#endif  
         
-   
+        GeoParticleSystemBox* geoParticleSystemBox = new GeoParticleSystemBox();
+        geoParticleSystemBox->setup();
+        geoParticleSystemBox->camera = camera;
+        geoParticleSystemBox->createParticles(geoParticleSystemBox->particleTexture.getWidth(), 
+                                              geoParticleSystemBox->particleTexture.getHeight());
+        particleSystems.push_back(geoParticleSystemBox);
+        
         
         currentIndex = 0;
         
