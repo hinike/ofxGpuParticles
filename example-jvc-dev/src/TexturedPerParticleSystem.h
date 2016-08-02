@@ -2,19 +2,18 @@
 #include "ofMain.h"
 #include "BaseParticleSystem.h"
 
-class GeoParticleSystemBox : public BaseParticleSystem
+class TexturedPerParticleSystem : public BaseParticleSystem
 {
 public:
     
     
     
     ofTexture particleTexture;
-    ofMatrix4x4 matrix;
-    ofEasyCam* camera;
-    GeoParticleSystemBox()
+    
+    TexturedPerParticleSystem()
     {
         magnitudeFactor = 500.f;
-        radius = 10.0f;
+        radius = 200.f;
         particles = NULL;
         
     }
@@ -37,7 +36,7 @@ public:
                 unsigned idx = y * w + x;
                 particlePosns[idx * 4] = 400.f * x / (float)w - 200.f; // particle x
                 particlePosns[idx * 4 + 1] = 400.f * y / (float)h - 200.f; // particle y
-                particlePosns[idx * 4 + 2] = ofRandomf()*100.f; // particle z
+                particlePosns[idx * 4 + 2] = 0.f; // particle z
                 particlePosns[idx * 4 + 3] = 0.f; // dummy
             }
         }
@@ -53,14 +52,14 @@ public:
     
     void loadShaders()
     {
+        string drawGeom = HEADER;
         
         updateVert+= STRINGIFY(
                                in vec4  position;
                                in vec2  texcoord;
                                
                                out vec2 texCoordVarying;
-                               uniform mat4 modelViewProjectionMatrix;
-
+                               
                                void main()
                                {
                                    texCoordVarying = texcoord;
@@ -70,7 +69,6 @@ public:
                                );
         
         updateFrag += STRINGIFY(
-                                // ping pong inputs
                                 uniform sampler2DRect particles0;
                                 uniform sampler2DRect particles1;
                                 
@@ -83,6 +81,7 @@ public:
                                 
                                 layout(location = 0) out vec4 posOut;
                                 layout(location = 1) out vec4 velOut;
+                                
                                 
                                 void main()
                                 {
@@ -115,7 +114,6 @@ public:
                                     velOut = vec4(vel, 0.0);
                                 }
                                 );
-        
         drawVert += STRINGIFY(
                               
                               uniform mat4 modelViewProjectionMatrix;
@@ -134,129 +132,68 @@ public:
                                   vs_out.texCoordVarying = texcoord;
                                   gl_Position = modelViewProjectionMatrix * vec4(texture(particles0, texcoord).xyz, 1.0);
                               });
-        drawFrag += STRINGIFY(
-                              
-                              
-                              in vec4 geomOutputColor;
-                              in vec2 texCoordVarying;
-                              
-                              out vec4 fragColor;
-                              
-                              in vec2 geomTexCoordVarying;
-
-                              uniform sampler2DRect particleTexture;
-                              void main()
-                              {
-                                  fragColor = texture(particleTexture, geomTexCoordVarying)*geomOutputColor;
-                              });
         
-        string drawGeom = HEADER;
         drawGeom += STRINGIFY(
                               layout (points) in;
                               
-                              layout (line_strip, max_vertices = 17) out;
+                              layout (triangle_strip, max_vertices = 4) out;
                               uniform mat4 modelViewProjectionMatrix;
-
+                              
                               uniform vec4 particleColor;
                               uniform float geomSize;
+                              uniform sampler2DRect particleTexture;
+                              uniform float imgWidth;
+                              uniform float imgHeight;
                               
                               in VS_OUT {
                                   vec2 texCoordVarying;
                               } gs_in[];
                               
-                              out vec4 geomOutputColor;
                               out vec2 geomTexCoordVarying;
                               
-                              void main() { 
+                              void main() {
                                   
                                   vec4 position = gl_in[0].gl_Position;
                                   
+                                  vec2 t1 = vec2(0.0f, 0.0f);
+                                  vec2 t2 = vec2(imgWidth, 0.0f);
+                                  vec2 t3 = vec2(imgWidth, imgHeight);
+                                  vec2 t4 = vec2(0.0f, imgHeight);
+                                  
+                                  
+                                  vec4 outputPosition;
+                                  vec4 localPosition;
+                                  
+                                  
                                   float n = geomSize;
-                                  float n2 = geomSize;
-                                  gl_Position = position + vec4(-n,  n,  n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
+                                  localPosition = vec4(-n,  n,  0.0f, 0.0f);
+                                  outputPosition = position + localPosition;
+                                  gl_Position = outputPosition;
+                                  //geomTexCoordVarying = gs_in[0].texCoordVarying;
+                                  geomTexCoordVarying = t3;
                                   EmitVertex();
                                   
-                                  gl_Position = position + vec4(n,  n,  n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
+                                  localPosition = vec4(n,  n,  0.0f, 0.0f);
+                                  outputPosition = position + localPosition;
+                                  gl_Position = outputPosition;
+                                  //geomTexCoordVarying = gs_in[0].texCoordVarying;
+                                  geomTexCoordVarying = t4;
                                   EmitVertex();
                                   
-                                  gl_Position = position + vec4(-n, -n,  n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
+                                  localPosition = vec4(-n, -n,  0.0f, 0.0f);
+                                  outputPosition = position + localPosition;
+                                  gl_Position = outputPosition;
+                                  //geomTexCoordVarying = gs_in[0].texCoordVarying;
+                                  geomTexCoordVarying = t2;
                                   EmitVertex();
                                   
-                                  gl_Position = position + vec4(n, -n,  n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
+                                  localPosition = vec4(n, -n,  0.0f, 0.0f);
+                                  outputPosition = position + localPosition;
+                                  gl_Position = outputPosition;
+                                  //geomTexCoordVarying = gs_in[0].texCoordVarying;
+                                  geomTexCoordVarying = t1;
                                   EmitVertex();
                                   
-                                  gl_Position = position + vec4(-n, -n, -n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(n, -n, -n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(-n,  n, -n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(n,  n, -n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(-n,  n,  n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(n,  n,  n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(n, -n,  n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(n,  n, -n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(n, -n, -n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(-n, -n, -n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(-n,  n, -n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(-n, -n,  n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
-                                  
-                                  gl_Position = position + vec4(-n,  n,  n, n2);
-                                  geomTexCoordVarying = gs_in[0].texCoordVarying;
-                                  geomOutputColor = particleColor;
-                                  EmitVertex();
                                   
                                   EndPrimitive();
                               }
@@ -264,19 +201,113 @@ public:
                               
                               );
         
+        
+        drawFrag += STRINGIFY(
+                              
+                              
+                              uniform vec4 particleColor;
+
+                              in vec2 texCoordVarying;
+                              
+                              out vec4 fragColor;
+                              
+                              in vec2 geomTexCoordVarying;
+                              
+                              uniform sampler2DRect particleTexture;
+                              void main()
+                              {
+                                  fragColor = texture(particleTexture, geomTexCoordVarying)*particleColor;
+                              });
+        
+        
+        
+#if 0
+        drawVert += STRINGIFY(
+                              uniform mat4 modelViewProjectionMatrix;
+                              uniform sampler2DRect particles0;
+                              uniform sampler2DRect particles1;
+                              
+                              in vec4  position;
+                              in vec2  texcoord;
+                              
+                              out VS_OUT {
+                                  vec2 texCoordVarying;
+                              } vs_out;
+                              
+                              void main()
+                              {
+                                  //vs_out.texCoordVarying = texcoord;
+                                  gl_Position = modelViewProjectionMatrix * vec4(texture(particles0, texcoord).xyz, 1.0);
+                              });
+        
+        drawGeom += STRINGIFY(
+                              
+                              layout (points) in;
+                              layout (triangle_strip, max_vertices = 4) out;
+                              uniform mat4 modelViewProjectionMatrix;
+                              
+                              uniform sampler2DRect particleTexture;
+                              uniform float imgWidth;
+                              uniform float imgHeight;
+                              uniform float geomSize;
+                              uniform vec4 globalColor;
+                              out vec2 geomTexCoordVarying;
+                              vec4 position;
+                              
+                              in VS_OUT {
+                                  vec2 texCoordVarying;
+                              } gs_in[];
+                              
+                              void createVertex(vec4 localPosition, vec2 tPos)
+                              {
+                                  vec4 outputPosition;
+                                  outputPosition = position + localPosition;
+                                  
+                                  gl_Position = modelViewProjectionMatrix * outputPosition;
+                                  geomTexCoordVarying = tPos;
+                                  EmitVertex();
+                              }
+                              void main()
+                              {
+                                  vec2 texCoordVarying = gs_in[0].texCoordVarying;
+                                  position =  gl_in[0].gl_Position;
+                                  vec2 t1 = vec2(0.0f, 0.0f);
+                                  vec2 t2 = vec2(imgWidth, 0.0f);
+                                  vec2 t3 = vec2(imgWidth, imgHeight);
+                                  vec2 t4 = vec2(0.0f, imgHeight);
+                                  
+                                  createVertex(vec4(-geomSize, -geomSize, 0.0f, 0.0f), t3);
+                                  createVertex(vec4( geomSize, -geomSize, 0.0f, 0.0f), t4);
+                                  createVertex(vec4( -geomSize, geomSize, 0.0f, 0.0f), t2);
+                                  createVertex(vec4( geomSize, geomSize, 0.0f, 0.0f), t1);
+                                  EndPrimitive();
+                              }
+                              );
+        //3, 4, 2, 1
+        drawFrag += STRINGIFY(
+                              
+                              out vec4 fragColor;
+                              uniform vec4 globalColor;
+                              uniform sampler2DRect particleTexture;
+                              
+                              in vec2 geomTexCoordVarying;
+                              
+                              void main (void)
+                              {
+                                  
+                                  fragColor = texture(particleTexture, geomTexCoordVarying)*globalColor;
+                              }
+                              );
+#endif
         updateShader.setupShaderFromSource(GL_VERTEX_SHADER, updateVert);
         updateShader.setupShaderFromSource(GL_FRAGMENT_SHADER, updateFrag);
         updateShader.bindDefaults();
         updateShader.linkProgram();
         
         
-        drawShader.setGeometryInputType(GL_POINTS);
-        drawShader.setGeometryOutputType(GL_LINE_STRIP);
-        drawShader.setGeometryOutputCount(17);
-        
         
         drawShader.setupShaderFromSource(GL_VERTEX_SHADER, drawVert);
-        drawShader.setupShaderFromSource(GL_GEOMETRY_SHADER_EXT, drawGeom);
+        drawShader.setupShaderFromSource(GL_GEOMETRY_SHADER, drawGeom);
         drawShader.setupShaderFromSource(GL_FRAGMENT_SHADER, drawFrag);
         drawShader.bindDefaults();
         drawShader.linkProgram();
@@ -301,24 +332,25 @@ public:
     
     void draw()
     {
-        //ofGetCurrentRenderer()->setBitmapTextMode(OF_BITMAPMODE_SCREEN);
         particleTexture.bind();
         drawShader.begin();
         particles->setUniforms(&drawShader);
         drawShader.setUniform1f("geomSize", geomSize);
-        
-        //drawShader.setUniformMatrix4f("modelViewProjectionMatrix", camera->getModelViewProjectionMatrix());
         drawShader.setUniformTexture("particleTexture", particleTexture, 1);
-
+        
+        drawShader.setUniform1f("imgWidth", particleTexture.getWidth());
+        drawShader.setUniform1f("imgHeight", particleTexture.getHeight());
+        
         drawShader.setUniform4f("particleColor",
                                 particleColor.r,
                                 particleColor.g,
                                 particleColor.b,
                                 particleColor.a);
-        particles->mesh.drawWireframe();
-        //particles->mesh.draw();
+        particles->mesh.draw();
+        
         drawShader.end();
         particleTexture.unbind();
+        
     }
     
     

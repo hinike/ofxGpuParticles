@@ -8,6 +8,7 @@
 #include "GeoParticleSystemTextured.h"
 #include "GeoParticleSystemVideo.h"
 #include "GeoParticleSystemBox.h"
+#include "TexturedPerParticleSystem.h"
 
 class ParticleSystemManager
 {
@@ -70,16 +71,23 @@ public:
         geoParticleSystem->setup();
         geoParticleSystem->createParticles(500, 500);
         particleSystems.push_back(geoParticleSystem);
-#endif  
-        
+
+   
         GeoParticleSystemBox* geoParticleSystemBox = new GeoParticleSystemBox();
         geoParticleSystemBox->setup();
         geoParticleSystemBox->camera = camera;
         geoParticleSystemBox->createParticles(geoParticleSystemBox->particleTexture.getWidth(), 
                                               geoParticleSystemBox->particleTexture.getHeight());
         particleSystems.push_back(geoParticleSystemBox);
-        
-        
+ #endif
+
+#if 1
+        TexturedPerParticleSystem* texturedPerParticleSystem = new TexturedPerParticleSystem();
+        texturedPerParticleSystem->setup();
+        texturedPerParticleSystem->createParticles(texturedPerParticleSystem->particleTexture.getWidth(),
+                                                   texturedPerParticleSystem->particleTexture.getHeight());
+        particleSystems.push_back(texturedPerParticleSystem);
+#endif
         currentIndex = 0;
         
         currentSystem = particleSystems[currentIndex];
